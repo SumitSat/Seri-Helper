@@ -1,0 +1,42 @@
+PRIVACY POLICY FOR SERI-HELPER MOBILE APPLICATION
+Last Updated: May 24, 2026
+
+Seri-Helper ("we", "our", or "us") is dedicated to protecting the privacy of our users ("you", "farmer", or "user"). This Privacy Policy describes how we collect, use, process, and protect your information when you use the Seri-Helper mobile application.
+
+1. INFORMATION WE COLLECT AND HOW WE USE IT
+
+A. Leaf Scanner (On-Device Computer Vision)
+- Data Processed: When you use the Leaf Scanner module to capture images of mulberry leaves, the image is processed in real-time, locally on your mobile device.
+- Storage: Images captured for leaf quality grading are processed strictly on-device using a quantized TensorFlow Lite model. These images are not uploaded, sent, or saved to any external servers or cloud repositories.
+
+B. Soil Health Card Scanner (AI-Powered OCR)
+- Data Processed: When you capture an image of your Soil Health Card, the application transmits the image to the Groq API (specifically utilizing the Meta Llama 4 vision model) solely for the purpose of performing Optical Character Recognition (OCR) to extract nutrient values (Nitrogen, Phosphorus, Potassium, pH, etc.).
+- Processing: This data transmission is secure, encrypted, and transient. The image is processed in memory to return structured JSON values and is not stored, retained, or used for model training by us or the API provider.
+
+C. Yield Predictions and Batch Configurations
+- Data Stored: When you explicitly tap "Save to History" on the Yield Dashboard, the application saves the rearing parameters (season, silkworm breed, hygiene protocols, feeding frequencies), parsed soil metrics, and the mathematical yield forecast.
+- Storage: This historical data is synchronized and stored in your Firebase Cloud Firestore instance (under the collection 'yield_reports_v2'). This database is securely configured via Google Firebase services, ensuring you retain full ownership and control of your farm records.
+
+D. Real-time Climate and Location Services
+- Data Processed: When you request live weather information via the "Get Live Weather" button, the application utilizes your device's GPS to retrieve latitude and longitude coordinates.
+- Usage: These coordinates are sent securely to the OpenWeatherMap API to retrieve current temperature and humidity data for your local area. Your location coordinates are processed transiently and are never logged, tracked, or stored on any server.
+
+2. THIRD-PARTY SERVICES
+Our application utilizes the following third-party integrations to provide agronomical forecasts:
+- Google Firebase (Cloud Firestore & Firebase Core): For syncing batch configurations and forecast histories.
+- Groq API: For scanning and parsing text values from Soil Health Cards.
+- OpenWeatherMap API: For fetching real-time temperature and humidity parameters.
+
+Each of these providers maintains their own privacy regulations regarding transit data encryption. We do not sell, trade, or transfer your farm or personal data to outside parties.
+
+3. SECURITY OF YOUR DATA
+We implement standard administrative, technical, and physical security measures to protect your information. Rearing histories stored via Firestore are encrypted in transit using SSL/TLS protocols and at rest within Google Cloud infrastructure.
+
+4. USER CONTROL AND DATA DELETION
+You have the right to view, correct, or delete your saved history. Because your data is stored in your Firestore database, you can clear records directly from the application interface or by managing your Firebase instance.
+
+5. CHANGES TO THIS PRIVACY POLICY
+We may update our Privacy Policy from time to time. Any changes will be posted within this document, and the "Last Updated" date at the top will be updated accordingly.
+
+6. CONTACT US
+If you have any questions or concerns regarding this Privacy Policy or your data practices, please contact our support team.

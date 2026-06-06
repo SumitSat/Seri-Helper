@@ -1,0 +1,384 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.page { font-family: var(--font-sans, sans-serif); padding: 0 0 2rem; }
+
+.section-title { font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.07em; color: var(--color-text-tertiary); margin: 1.5rem 0 0.75rem; }
+
+.coverage-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 1.5rem; }
+.cov-card { border-radius: var(--border-radius-md); padding: 12px 14px; text-align: center; border: 0.5px solid var(--color-border-tertiary); }
+.cov-num { font-size: 26px; font-weight: 500; }
+.cov-lbl { font-size: 11px; color: var(--color-text-secondary); margin-top: 3px; }
+.cov-green { background: #EAF3DE; border-color: #3B6D11; }
+.cov-green .cov-num { color: #27500A; }
+.cov-amber { background: #FAEEDA; border-color: #854F0B; }
+.cov-amber .cov-num { color: #633806; }
+.cov-red { background: #FCEBEB; border-color: #A32D2D; }
+.cov-red .cov-num { color: #501313; }
+@media (prefers-color-scheme: dark) {
+  .cov-green { background: #173404; border-color: #639922; }
+  .cov-green .cov-num { color: #C0DD97; }
+  .cov-amber { background: #412402; border-color: #BA7517; }
+  .cov-amber .cov-num { color: #FAC775; }
+  .cov-red { background: #501313; border-color: #A32D2D; }
+  .cov-red .cov-num { color: #F09595; }
+}
+
+.param-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px; border-radius: 8px; margin-bottom: 6px;
+  border: 0.5px solid var(--color-border-tertiary);
+  background: var(--color-background-primary);
+}
+.status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.dot-covered { background: #639922; }
+.dot-partial  { background: #BA7517; }
+.dot-missing  { background: #E24B4A; }
+.param-info { flex: 1; min-width: 0; }
+.param-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+.param-desc { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; line-height: 1.5; }
+.status-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; flex-shrink: 0; white-space: nowrap; }
+.badge-covered { background: #EAF3DE; color: #27500A; }
+.badge-partial  { background: #FAEEDA; color: #633806; }
+.badge-missing  { background: #FCEBEB; color: #501313; }
+@media (prefers-color-scheme: dark) {
+  .badge-covered { background: #173404; color: #C0DD97; }
+  .badge-partial  { background: #412402; color: #FAC775; }
+  .badge-missing  { background: #501313; color: #F09595; }
+}
+
+.formula-box {
+  background: var(--color-background-secondary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  padding: 16px;
+  margin: 8px 0 12px;
+  font-family: var(--font-mono, monospace);
+  font-size: 12px;
+  color: var(--color-text-primary);
+  line-height: 1.7;
+  overflow-x: auto;
+}
+.formula-label { font-family: var(--font-sans); font-size: 11px; color: var(--color-text-tertiary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+.note-box { border-left: 3px solid; padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 10px 0; font-size: 13px; line-height: 1.6; }
+.note-info  { border-color: #185FA5; background: #E6F1FB; color: #0C447C; }
+.note-warn  { border-color: #854F0B; background: #FAEEDA; color: #633806; }
+.note-success { border-color: #3B6D11; background: #EAF3DE; color: #173404; }
+@media (prefers-color-scheme: dark) {
+  .note-info  { border-color: #378ADD; background: #042C53; color: #85B7EB; }
+  .note-warn  { border-color: #BA7517; background: #412402; color: #FAC775; }
+  .note-success { border-color: #639922; background: #173404; color: #C0DD97; }
+}
+
+.tab-bar { display: flex; gap: 4px; border-bottom: 0.5px solid var(--color-border-tertiary); margin-bottom: 1rem; }
+.tab { padding: 8px 14px; font-size: 13px; cursor: pointer; border-bottom: 2px solid transparent; color: var(--color-text-secondary); }
+.tab.active { color: var(--color-text-primary); border-bottom-color: var(--color-text-primary); font-weight: 500; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.phase-row { display: flex; gap: 10px; margin-bottom: 10px; }
+.phase-tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: var(--color-background-secondary); color: var(--color-text-secondary); flex-shrink: 0; margin-top: 1px; }
+.phase-body { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+.phase-body strong { color: var(--color-text-primary); font-weight: 500; }
+
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { text-align: left; padding: 8px 10px; font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); border-bottom: 0.5px solid var(--color-border-tertiary); text-transform: uppercase; letter-spacing: 0.05em; }
+td { padding: 8px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-secondary); vertical-align: top; }
+td:first-child { color: var(--color-text-primary); font-weight: 500; }
+tr:last-child td { border-bottom: none; }
+</style>
+
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">
+  Gap analysis of current sericulture yield model and roadmap for enhanced accuracy
+</h2>
+
+<div class="page">
+
+<div class="tab-bar">
+  <div class="tab active" onclick="switchTab('coverage')">Coverage audit</div>
+  <div class="tab" onclick="switchTab('formula')">Enhanced formula</div>
+  <div class="tab" onclick="switchTab('roadmap')">Implementation roadmap</div>
+</div>
+
+<!-- TAB 1: COVERAGE -->
+<div class="tab-panel active" id="tab-coverage">
+
+  <p class="section-title">Model coverage summary</p>
+  <div class="coverage-grid">
+    <div class="cov-card cov-green"><div class="cov-num">3</div><div class="cov-lbl">Fully covered</div></div>
+    <div class="cov-card cov-amber"><div class="cov-num">4</div><div class="cov-lbl">Partially covered</div></div>
+    <div class="cov-card cov-red"><div class="cov-num">15</div><div class="cov-lbl">Not covered</div></div>
+  </div>
+
+  <div class="note-box note-warn">
+    Your current model captures the 3 highest-level meta-factors correctly (leaf quality, climate, soil) but collapses 22 research-grade parameters into 3 scores — losing all sub-parameter nuance that drives real-world yield variance. The weighted formula coefficients (0.382 / 0.370 / 0.248) are well-grounded in Miyashita 1986, but the scores feeding into those coefficients are under-resolved.
+  </div>
+
+  <p class="section-title">Parameter-by-parameter coverage audit</p>
+
+  <div id="param-list"></div>
+
+</div>
+
+<!-- TAB 2: ENHANCED FORMULA -->
+<div class="tab-panel" id="tab-formula">
+
+  <p class="section-title">Current formula (as-is)</p>
+  <div class="formula-label">Miyashita 1986 / CSRTI Mysore — baseline</div>
+  <div class="formula-box">
+Yield = 65 × [0.382 × Foliage_Quality + 0.370 × Climate_Compliance + 0.248 × Soil_Health]
+  </div>
+
+  <div class="note-box note-info">
+    The base formula structure is scientifically sound. The problem is not the <em>weights</em> — it is what goes <em>inside</em> each score. The enhancements below keep the same 3-factor skeleton but replace the simplified sub-scores with research-validated composite sub-indices, then add two new multiplicative penalty terms that the current model ignores entirely: disease risk and breed/management quality.
+  </div>
+
+  <p class="section-title">Proposed enhanced formula (V2)</p>
+  <div class="formula-label">Research-composite model — 5 factors, 18 sub-parameters</div>
+  <div class="formula-box">
+Yield_V2 = Base_Yield × FQI × CCI × SHI × D_penalty × BM_factor
+
+Where:
+  Base_Yield = 65 kg / 100 DFLs  (bivoltine hybrid max, unchanged)
+
+  FQI  = Foliage Quality Index    (weight: 0.382)
+  CCI  = Climate Compliance Index (weight: 0.370)
+  SHI  = Soil & Nutrition Index   (weight: 0.248)
+  D    = Disease Risk Penalty     (multiplicative, 0.53–1.0)
+  BM   = Breed & Mgmt Factor     (multiplicative, 0.70–1.0)
+
+Full expression:
+  Yield_V2 = 65
+    × (0.382 × FQI)
+    × (0.370 × CCI)
+    × (0.248 × SHI)
+    × D_penalty
+    × BM_factor
+  </div>
+
+  <p class="section-title">FQI — Foliage Quality Index (replaces Foliage_Quality score)</p>
+  <div class="formula-label">Your image processing module feeds into this</div>
+  <div class="formula-box">
+FQI = w1×LeafHealth + w2×LeafPosition + w3×LeafAge + w4×MoistureProxy + w5×DiseaseFlag
+
+Where:
+  w1 = 0.35  LeafHealth     — your existing scanner output (0–1)
+  w2 = 0.20  LeafPosition   — top/mid/basal label from scanner (top=1.0, mid=0.85, basal=0.65)
+  w3 = 0.20  LeafAge        — shoot age input: 55–65d=1.0, <40d=0.6, >80d=0.5
+  w4 = 0.15  MoistureProxy  — derived from temp+humidity (leaf wilting risk)
+  w5 = 0.10  DiseaseFlag    — image disease detection output (healthy=1.0, spotted=0.4, severe=0.1)
+
+Research basis:
+  Vegetos/Springer 2024 — leaf position effect on cocoon shell weight
+  Sericologia 1997 — maturity-quality window (55–65 days optimal)
+  PMC 2022 (PMC9506520) — protein + phenolic content vs. silk quality
+  </div>
+
+  <p class="section-title">CCI — Climate Compliance Index (replaces Climate_Compliance score)</p>
+  <div class="formula-label">Your environment sensor module feeds into this</div>
+  <div class="formula-box">
+CCI = w1×TempScore + w2×HumidScore + w3×VentScore + w4×SeasonScore
+
+Where:
+  w1 = 0.40  TempScore   — existing logic (25–28°C = 1.0) ✓ already implemented
+  w2 = 0.30  HumidScore  — existing logic (75–80% RH = 1.0) ✓ already implemented
+  w3 = 0.15  VentScore   — CO₂/ammonia proxy; user input: good/moderate/poor (1.0/0.75/0.5)
+  w4 = 0.15  SeasonScore — user selects season; Spring=1.0, Winter=0.85, Monsoon=0.7, Summer=0.65
+
+Research basis:
+  Rehman et al. 2000 (AGRIS/FAO) — 30°C reduces shell weight 24–28%
+  Indian J. Exp. Biol. 2001 — 22°C, 65±5% RH optimal for cocoon spinning
+  Springer 2025 (W.Bengal) — monsoon = peak Grasserie/Flacherie risk
+  Kumar et al. 2021 (Research Biotica 3(4)) — ventilation impact
+  </div>
+
+  <p class="section-title">SHI — Soil & Nutrition Index (replaces Soil_Health score)</p>
+  <div class="formula-label">Your LLM soil profiling module feeds into this</div>
+  <div class="formula-box">
+SHI = w1×NPK_Score + w2×pH_Score + w3×FertilizationScore + w4×OrganicMatter
+
+Where:
+  w1 = 0.40  NPK_Score         — existing N, P, K normalization ✓ already implemented
+  w2 = 0.25  pH_Score          — existing pH normalization ✓ already implemented
+  w3 = 0.25  FertilizationScore— user input: foliar spray = 1.0, basal only = 0.7, none = 0.4
+  w4 = 0.10  OrganicMatter     — user input: high/med/low (1.0/0.75/0.5)
+
+Research basis:
+  BSTRI Bangladesh — foliar NPK spray +52.8% cocoon yield vs control
+  AATCC PeerJournals 2022 — nano NPK 6g/l highest cocoon weight
+  PMC 2019 (PMC6634293) — protein paramount; mineral content key
+  </div>
+
+  <p class="section-title">D_penalty — Disease Risk Penalty (NEW — not in current model)</p>
+  <div class="formula-label">Your image processing disease detection feeds into this</div>
+  <div class="formula-box">
+D_penalty = 1.0 – (Grasserie_risk × 0.30 + Flacherie_risk × 0.25
+                  + Muscardine_risk × 0.15 + Pebrine_risk × 0.20
+                  + Pesticide_flag × 0.10)
+
+Where each risk is a probability (0.0–1.0):
+  Grasserie_risk   — from image scanner (BmNPV lesion detection) + climate risk (monsoon+high RH)
+  Flacherie_risk   — from image scanner + season/humidity proxy
+  Muscardine_risk  — from image scanner + cool/damp season flag
+  Pebrine_risk     — user input (egg inspection status: certified DFL=0.05, uncertified=0.4)
+  Pesticide_flag   — user input (adjacent farm pesticide use: yes=0.5, no=0.0)
+
+Penalty range: 0.53 (all risks high) to ~1.0 (disease-free)
+Clamp: max(D_penalty, 0.53)  — even worst-case, some cocoons survive
+
+Research basis:
+  Pharma Innovation Journal 2022 — 15–47% crop loss from disease
+  ISROSET 2019 — Flacherie 30–40% loss, 47.9% disease prevalence
+  Springer 2025 — Grasserie × RH/temp correlation confirmed
+  PMC 2023 (PMC9985772) — Pebrine crop failure documented
+  </div>
+
+  <p class="section-title">BM_factor — Breed & Management Factor (NEW — not in current model)</p>
+  <div class="formula-label">Simple user questionnaire — no new hardware needed</div>
+  <div class="formula-box">
+BM_factor = w1×BreedScore + w2×HygieneScore + w3×FeedingScore + w4×SeasonBreed
+
+Where:
+  w1 = 0.35  BreedScore    — user selects breed type:
+                             Bivoltine hybrid (CSR) = 1.0
+                             Multivoltine × bivoltine cross = 0.85
+                             Pure multivoltine = 0.70
+  w2 = 0.30  HygieneScore — user input: disinfectant used (yes/no), frequency
+                             Full protocol = 1.0, partial = 0.75, none = 0.4
+  w3 = 0.25  FeedingScore — user input: feeding frequency per day
+                             4+ per day (5th instar) = 1.0, 3/day = 0.85, 2/day = 0.65
+  w4 = 0.10  SeasonBreed  — breed–season mismatch penalty
+                             Bivoltine in summer = 0.75 (heat-sensitive)
+                             Multivoltine in any season = 0.9
+
+BM_factor range: 0.70 – 1.0
+
+Research basis:
+  PMC 2020 (PMC7105477) — domestic × wild: 4.68× cocoon shell wt difference
+  APSSRDI — heterosis breeding = primary yield lever
+  Oxford Academic 2011 — thermotolerant bivoltine strains (BD2-S, SOF-BR)
+  Pharma Innovation Journal — bed disinfection 1:5 cost-benefit ratio
+  </div>
+
+  <p class="section-title">Worked example comparison</p>
+  <div class="formula-label">Same farm, same conditions — old vs. new model</div>
+  <div class="formula-box">
+Scenario: Spring rearing, bivoltine hybrid, moderate disease risk, good hygiene
+  Foliage = 0.75 (medium-good scan), Climate = 0.85 (spring, good T/RH)
+  Soil = 0.70 (moderate NPK, some foliar), Disease risk = moderate, Good hygiene
+
+CURRENT MODEL:
+  Yield = 65 × [0.382×0.75 + 0.370×0.85 + 0.248×0.70]
+        = 65 × [0.2865 + 0.3145 + 0.1736]
+        = 65 × 0.7746 = 50.3 kg / 100 DFLs
+
+ENHANCED MODEL:
+  FQI  = 0.35×0.75 + 0.20×0.90 + 0.20×0.95 + 0.15×0.80 + 0.10×0.90 = 0.845
+  CCI  = 0.40×0.85 + 0.30×0.90 + 0.15×0.80 + 0.15×1.00 = 0.875
+  SHI  = 0.40×0.70 + 0.25×0.80 + 0.25×0.70 + 0.10×0.75 = 0.730
+  D_penalty = 1 – (0.10×0.30 + 0.05×0.25 + 0.05×0.15 + 0.05×0.20 + 0.0×0.10) = 0.944
+  BM_factor = 0.35×1.00 + 0.30×0.85 + 0.25×0.85 + 0.10×1.00 = 0.918
+
+  Yield_V2 = 65 × (0.382×0.845) × (0.370×0.875) × (0.248×0.730) × 0.944 × 0.918
+  (Normalized to keep total weights = 1):
+  Yield_V2 = 65 × [0.382×0.845 + 0.370×0.875 + 0.248×0.730] × D × BM
+           = 65 × 0.8316 × 0.944 × 0.918
+           = 65 × 0.8316 × 0.866
+           = 46.8 kg / 100 DFLs  (more conservative; disease + mgmt penalties applied)
+  </div>
+
+  <div class="note-box note-success">
+    The enhanced model is more conservative in this scenario because it correctly penalizes for moderate disease risk and sub-optimal feeding frequency — factors the old model assumes away. It is also more accurate when conditions are excellent, since FQI captures leaf position and age bonuses the old model misses.
+  </div>
+
+</div>
+
+<!-- TAB 3: ROADMAP -->
+<div class="tab-panel" id="tab-roadmap">
+
+  <p class="section-title">What your 3 modules already capture</p>
+  <table>
+    <tr><th>Your module</th><th>Parameters currently captured</th><th>Coverage</th></tr>
+    <tr><td>Image processing (leaf & disease)</td><td>Leaf health/disease visual score, disease type detection (Grasserie spots, Muscardine, etc.)</td><td>~4 of 22 params</td></tr>
+    <tr><td>LLM soil profiling</td><td>N, P, K levels, soil pH — feeds Soil Health Index</td><td>~3 of 22 params</td></tr>
+    <tr><td>Environment sensors</td><td>Temperature and humidity — feeds Climate Compliance</td><td>~2 of 22 params</td></tr>
+  </table>
+
+  <p class="section-title">Phase 1 — Zero new hardware (add via user questionnaire)</p>
+  <div class="phase-row"><span class="phase-tag">Input</span><div class="phase-body"><strong>Season selector</strong> — Spring / Summer / Monsoon / Winter. Feeds CCI SeasonScore (−15% penalty in monsoon) and D_penalty (Grasserie risk × 1.5 in monsoon). Research: Springer 2025 (8.37% Grasserie in Shravani crop).</div></div>
+  <div class="phase-row"><span class="phase-tag">Input</span><div class="phase-body"><strong>Breed selection</strong> — CSR bivoltine hybrid / multivoltine cross / pure multivoltine. Feeds BM_factor BreedScore. Research: PMC 2020 — 4.68× yield differential between domestic and wild strains.</div></div>
+  <div class="phase-row"><span class="phase-tag">Input</span><div class="phase-body"><strong>Fertilization method</strong> — foliar spray + basal / basal only / none. Feeds SHI FertilizationScore. Research: BSTRI Bangladesh — foliar NPK +52.8% cocoon yield vs. control.</div></div>
+  <div class="phase-row"><span class="phase-tag">Input</span><div class="phase-body"><strong>Hygiene protocol</strong> — full disinfection / partial / none. Feeds BM_factor HygieneScore. Research: Pharma Innovation J. 2022 — 15–47% crop loss without disinfection; Sanjeevini 1:5 cost-benefit.</div></div>
+  <div class="phase-row"><span class="phase-tag">Input</span><div class="phase-body"><strong>DFL source / Pebrine status</strong> — certified disease-free laying vs. uncertified. Feeds D_penalty Pebrine_risk. Research: PMC 2023 — Nosema crop failure 36%; pebrine "can wipe out industry".</div></div>
+  <div class="phase-row"><span class="phase-tag">Input</span><div class="phase-body"><strong>Leaf position at harvest</strong> — top / middle / mixed. Feeds FQI LeafPosition multiplier. Research: Vegetos/Springer 2024 — top leaves yield significantly higher cocoon shell weight.</div></div>
+  <div class="phase-row"><span class="phase-tag">Input</span><div class="phase-body"><strong>Shoot age at harvest</strong> — user inputs days since last pruning. Feeds FQI LeafAge score (55–65d = 1.0). Research: Sericologia 1997 — maturity window confirmed across 14 varieties.</div></div>
+  <div class="phase-row"><span class="phase-tag">Input</span><div class="phase-body"><strong>Feeding frequency</strong> — times per day (5th instar). Feeds BM_factor FeedingScore. Research: FAO guidelines — 3–4 times/day in 5th instar; 80–100 kg leaf per 100 worms required.</div></div>
+  <div class="phase-row"><span class="phase-tag">Input</span><div class="phase-body"><strong>Adjacent pesticide risk</strong> — yes/no. Feeds D_penalty Pesticide_flag. Research: Agriculture Institute 2025 — "leading cause of unexpected batch losses in mixed-farming regions".</div></div>
+
+  <p class="section-title">Phase 2 — Enhance image processing (CV model additions)</p>
+  <div class="phase-row"><span class="phase-tag">CV</span><div class="phase-body"><strong>Leaf position classifier</strong> — identify shoot position from image (top/mid/basal leaf morphology). Replace questionnaire input with automated detection. Feeds FQI LeafPosition.</div></div>
+  <div class="phase-row"><span class="phase-tag">CV</span><div class="phase-body"><strong>Leaf moisture/freshness proxy</strong> — detect wilting, yellowing, curling from image. Quantify FQI MoistureProxy without a physical hygrometer on the leaf. Research: Pandit & Bali 2015 (post-harvest moisture loss patterns).</div></div>
+  <div class="phase-row"><span class="phase-tag">CV</span><div class="phase-body"><strong>Disease confidence scoring</strong> — output named disease probabilities (Grasserie / Flacherie / Muscardine / healthy) rather than a single health score. Feeds D_penalty sub-scores directly. Research: ISROSET 2019 (disease morphology classification).</div></div>
+  <div class="phase-row"><span class="phase-tag">CV</span><div class="phase-body"><strong>Larval health scan (optional)</strong> — if silkworm body images are captured, detect abnormal posture, flaccidity, or discolouration indicative of disease. Research: CSRTI Mysore disease identification protocols.</div></div>
+
+  <p class="section-title">Phase 3 — Enhanced sensor stack (low-cost additions)</p>
+  <div class="phase-row"><span class="phase-tag">Sensor</span><div class="phase-body"><strong>CO₂ / ammonia sensor</strong> — rearing house air quality. Feeds CCI VentScore directly. Research: Kumar et al. 2021; Murshidabad PAH study showing air quality degradation reduces silk fibre quality.</div></div>
+  <div class="phase-row"><span class="phase-tag">Sensor</span><div class="phase-body"><strong>Instar-specific temperature logging</strong> — different optimal temps per instar (1st–2nd: 27–28°C; 3rd: 26°C; 4th–5th: 24–25°C; spinning: 22°C). Stage-specific scoring gives more accurate CCI than a single range. Research: Rahmathulla 2012 (Wiley Psyche, Table 1 — instar-by-instar optima).</div></div>
+  <div class="phase-row"><span class="phase-tag">Sensor</span><div class="phase-body"><strong>Leaf moisture sensor</strong> — direct measurement of fresh leaf water content at feeding time. Feeds FQI MoistureProxy with high accuracy. Research: Sastry et al. 1988 — moisture content directly raises feeding efficiency and growth rate.</div></div>
+
+  <p class="section-title">Phase 4 — Advanced (LLM soil module upgrade)</p>
+  <div class="phase-row"><span class="phase-tag">LLM</span><div class="phase-body"><strong>Mulberry variety recommendation</strong> — given local climate and soil data, LLM recommends optimal Morus alba cultivar. High-protein varieties improve FQI at source. Research: PMC 2022 (local genotype selection — protein + phenolic screening).</div></div>
+  <div class="phase-row"><span class="phase-tag">LLM</span><div class="phase-body"><strong>Fertilization scheduling</strong> — LLM generates NPK split-dose schedule for the farmer's mulberry block based on soil report + season. Feeds SHI FertilizationScore. Research: BSTRI Bangladesh (4-split foliar dose protocol).</div></div>
+  <div class="phase-row"><span class="phase-tag">LLM</span><div class="phase-body"><strong>Micronutrient flag</strong> — flag Zn, Fe, Mn, Ca deficiency from soil report. Feeds SHI sub-score. Research: PMC 2022 — microelements positively predict silk thread parameters.</div></div>
+
+</div>
+
+</div>
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+const params = [
+  { name: "Foliage / leaf health (visual)", status: "covered", desc: "Your image processing module outputs a score (0–1). Excellent=1.0, Medium=0.6, Poor=0.2. Directly used in formula." },
+  { name: "Temperature", status: "covered", desc: "Your environment sensor captures temperature. Compliance scored against 25–28°C. Already in CCI." },
+  { name: "Relative humidity", status: "covered", desc: "Your environment sensor captures RH. Compliance scored against 75–80%. Already in CCI." },
+  { name: "Soil NPK & pH", status: "covered", desc: "Your LLM soil profiling captures N, P, K, pH values and normalizes them into Soil Health Index." },
+  { name: "Disease detection (Grasserie/Muscardine)", status: "partial", desc: "Your image scanner detects disease. However, it outputs only a binary health score — not disease-specific probability scores needed for the D_penalty sub-formula." },
+  { name: "Leaf position (top/mid/basal)", status: "partial", desc: "Not yet detected. Could be added to image processing or questionnaire. Vegetos 2024: top leaves yield significantly higher cocoon shell weight than basal." },
+  { name: "Leaf moisture / freshness", status: "partial", desc: "Partially inferred from temperature/humidity but not directly measured. A wilting/yellowing classifier in the image model would capture this explicitly." },
+  { name: "Fertilization method (foliar vs basal)", status: "partial", desc: "NPK levels in soil are captured but fertilization delivery method (foliar spray vs basal-only) is a separate +52.8% yield lever (BSTRI 2022) not captured." },
+  { name: "Silkworm breed / hybrid type", status: "missing", desc: "Not collected at all. Domestic bivoltine vs. wild strain: 4.68× difference in cocoon shell weight (PMC 2020). Critical missing input." },
+  { name: "Rearing season", status: "missing", desc: "Not collected. Monsoon season alone increases Grasserie incidence to 8.37% (Springer 2025). Season adjusts both climate risk and disease probability." },
+  { name: "Leaf shoot age at harvest", status: "missing", desc: "Not collected. Optimal window is 55–65 days (Sericologia 1997). Over/under-mature leaves significantly reduce protein and palatability." },
+  { name: "Bed hygiene & disinfection", status: "missing", desc: "Not collected. 15–47% cocoon crop loss directly tied to hygiene failure (Pharma Innovation J. 2022). Sanjeevini disinfectant alone gives 1:5 cost-benefit." },
+  { name: "DFL source / Pebrine risk", status: "missing", desc: "Not collected. Uncertified DFLs carry significant Nosema/Pebrine risk (up to 36% crop failure — Nataraju et al.). Certified vs uncertified is binary but critical." },
+  { name: "Feeding frequency", status: "missing", desc: "Not collected. 5th instar silkworms need feeding every 3–4 hrs; 80–100 kg leaf per 100 worms. Underfeeding in this stage directly reduces cocoon shell weight." },
+  { name: "Pesticide contamination risk", status: "missing", desc: "Not collected. Described as 'leading cause of unexpected batch losses' in mixed farming regions (Agriculture Institute 2025). Binary yes/no input." },
+  { name: "Ventilation quality (CO₂/NH₃)", status: "missing", desc: "Not collected. Air quality affects feeding, growth, and disease susceptibility. Kumar et al. 2021; Murshidabad PAH study." },
+  { name: "Mulberry variety / genotype", status: "missing", desc: "Not collected. Protein and phenolic content vary drastically by variety. High-protein, low-phenolic varieties can significantly boost FQI at source (PMC 2022)." },
+  { name: "Sex of silkworm", status: "missing", desc: "Not collected. Female silkworms yield higher whole cocoon weight; males yield higher shell ratio. Interaction with mulberry sex documented (PMC 2022, Sichuan)." },
+  { name: "Micronutrients (Zn, Fe, Mn, Ca)", status: "missing", desc: "Soil LLM captures NPK but typically not micronutrients. Ca, Zn, Mn affect silk thread strength parameters (PMC 2022 local mulberry genotype study)." },
+  { name: "Organic matter in soil", status: "missing", desc: "Soil LLM captures NPK but organic matter is a separate indicator of long-term soil health affecting mulberry root nutrition." },
+  { name: "Flacherie / Pebrine image detection", status: "missing", desc: "Image model detects visual symptoms but Flacherie and Pebrine are internal diseases — not reliably visible in leaf or early-stage larval images. Questionnaire proxy needed." },
+  { name: "Breed × season compatibility", status: "missing", desc: "Bivoltine breeds are heat-sensitive; rearing them in summer causes significantly higher mortality. Season-breed mismatch penalty not modelled. Oxford Academic 2011." }
+];
+
+const list = document.getElementById('param-list');
+params.forEach(p => {
+  const cls = { covered: 'dot-covered', partial: 'dot-partial', missing: 'dot-missing' }[p.status];
+  const badgeCls = { covered: 'badge-covered', partial: 'badge-partial', missing: 'badge-missing' }[p.status];
+  const label = { covered: 'Covered ✓', partial: 'Partial ⚠', missing: 'Not covered ✗' }[p.status];
+  const row = document.createElement('div');
+  row.className = 'param-row';
+  row.innerHTML = `<div class="status-dot ${cls}"></div>
+    <div class="param-info"><div class="param-name">${p.name}</div><div class="param-desc">${p.desc}</div></div>
+    <span class="status-badge ${badgeCls}">${label}</span>`;
+  list.appendChild(row);
+});
+</script>

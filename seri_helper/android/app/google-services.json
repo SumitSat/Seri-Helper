@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "116193801316",
+    "project_id": "seri-helper",
+    "storage_bucket": "seri-helper.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:116193801316:android:12b0c482d8836ac9639b71",
+        "android_client_info": {
+          "package_name": "com.ApexML.serihelper"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOz-wtk_HTaFFhTLWbU5Rfu3H47qbdrH8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:116193801316:android:079b768f7eee8427639b71",
+        "android_client_info": {
+          "package_name": "com.example.seri_helper"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOz-wtk_HTaFFhTLWbU5Rfu3H47qbdrH8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

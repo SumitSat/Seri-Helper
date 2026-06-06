@@ -1,0 +1,661 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans, sans-serif); }
+
+.header { padding: 1.5rem 0 1rem; border-bottom: 1px solid var(--color-border-tertiary); margin-bottom: 1.5rem; }
+.header h1 { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
+.header p { font-size: 13px; color: var(--color-text-secondary); margin-top: 6px; }
+
+.filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1.5rem; }
+.filter-btn {
+  font-size: 12px; padding: 5px 14px; border-radius: 20px;
+  border: 0.5px solid var(--color-border-secondary);
+  background: transparent; color: var(--color-text-secondary);
+  cursor: pointer; transition: all 0.15s;
+}
+.filter-btn.active {
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-primary);
+  font-weight: 500;
+}
+
+.param-card {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.param-card:hover { border-color: var(--color-border-secondary); }
+
+.card-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; cursor: pointer; user-select: none;
+}
+.card-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.card-title { flex: 1; }
+.card-title h3 { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+.card-title p { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+
+.impact-badge {
+  font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 12px;
+  flex-shrink: 0;
+}
+.impact-critical { background: #FCEBEB; color: #A32D2D; }
+.impact-high     { background: #FAEEDA; color: #854F0B; }
+.impact-moderate { background: #E6F1FB; color: #185FA5; }
+@media (prefers-color-scheme: dark) {
+  .impact-critical { background: #501313; color: #F09595; }
+  .impact-high     { background: #412402; color: #FAC775; }
+  .impact-moderate { background: #042C53; color: #85B7EB; }
+}
+
+.chevron { font-size: 12px; color: var(--color-text-tertiary); transition: transform 0.2s; }
+.chevron.open { transform: rotate(180deg); }
+
+.card-body { display: none; border-top: 0.5px solid var(--color-border-tertiary); }
+.card-body.open { display: block; }
+
+.body-section { padding: 14px 16px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.body-section:last-child { border-bottom: none; }
+.body-section h4 { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-tertiary); margin-bottom: 8px; }
+.body-section p, .body-section li { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+.body-section ul { padding-left: 16px; }
+.body-section li { margin-bottom: 4px; }
+
+.sub-params { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; margin-top: 8px; }
+.sub-param { background: var(--color-background-secondary); border-radius: 6px; padding: 10px 12px; }
+.sub-param .label { font-size: 11px; font-weight: 500; color: var(--color-text-primary); }
+.sub-param .val { font-size: 12px; color: var(--color-text-secondary); margin-top: 3px; }
+
+.ref-tag {
+  display: inline-block; font-size: 11px; padding: 2px 8px;
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: 4px; color: var(--color-text-tertiary);
+  margin: 3px 3px 0 0; background: var(--color-background-secondary);
+}
+
+.stat-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.stat-pill {
+  font-size: 12px; padding: 4px 10px; border-radius: 6px;
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+}
+.stat-pill strong { color: var(--color-text-primary); }
+
+.summary-bar {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1.5rem;
+}
+.stat-card {
+  background: var(--color-background-secondary);
+  border-radius: var(--border-radius-md);
+  padding: 12px 14px; text-align: center;
+}
+.stat-card .num { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+.stat-card .lbl { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
+
+.no-results { text-align: center; padding: 3rem 0; color: var(--color-text-tertiary); font-size: 14px; }
+</style>
+
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">
+  Research-backed parameters affecting silk yield in sericulture and silkworm mulberry leaf feeding
+</h2>
+
+<div class="header">
+  <h1>Parameters affecting silk yield in sericulture</h1>
+  <p>Research-backed factors in silkworm rearing & mulberry leaf feeding · Bombyx mori</p>
+</div>
+
+<div class="summary-bar">
+  <div class="stat-card"><div class="num">28</div><div class="lbl">Parameters identified</div></div>
+  <div class="stat-card"><div class="num">6</div><div class="lbl">Parameter categories</div></div>
+  <div class="stat-card"><div class="num">40+</div><div class="lbl">Research references</div></div>
+</div>
+
+<div class="filter-bar" id="filters">
+  <button class="filter-btn active" data-cat="all">All categories</button>
+  <button class="filter-btn" data-cat="leaf">Leaf quality</button>
+  <button class="filter-btn" data-cat="env">Environment</button>
+  <button class="filter-btn" data-cat="genetics">Genetics</button>
+  <button class="filter-btn" data-cat="nutrition">Nutrition</button>
+  <button class="filter-btn" data-cat="disease">Disease</button>
+  <button class="filter-btn" data-cat="management">Management</button>
+</div>
+
+<div id="cards-container"></div>
+
+<script>
+const params = [
+  {
+    id: 1, cat: "leaf", impact: "critical",
+    icon: "🌿", iconBg: "#EAF3DE",
+    title: "Mulberry leaf protein content",
+    subtitle: "Primary nutritional driver of silk synthesis",
+    overview: "Leaf protein content is the single most critical nutritional parameter. Silkworm Bombyx mori ingests more than 65% of its nitrogen specifically for silk production. Fibroin — the core silk protein — comprises 70–75% of the silk filament, and its synthesis depends almost entirely on dietary nitrogen from mulberry leaves.",
+    keyFindings: [
+      "High leaf protein content correlates directly with higher cocoon shell weight and shell ratio (production efficiency of cocoon shell relative to total consumption).",
+      "Mulberry leaves enriched with 0.2% nitrogen showed significant improvement in larval development and silk yield.",
+      "Local mulberry genotypes with higher total protein content yielded superior silk thread parameters vs. standard varieties (Urbanek Krajnc et al., PMC 2022).",
+      "The protein content (soluble and crude) of mulberry leaves is termed the 'paramount nutritional factor' in determining life-cycle performance of silkworm (PMC 2019, Influence of Micronutrients study)."
+    ],
+    subparams: [
+      { label: "Crude protein", val: "18–28% dry weight optimal" },
+      { label: "Soluble protein", val: "Positively correlated with larval weight" },
+      { label: "Nitrogen content", val: ">65% ingested N goes to silk" },
+      { label: "Amino acids", val: "Leucine absorption key in midgut" }
+    ],
+    refs: ["Unni et al. 2000 (Indian Seric.)", "Leonardi et al. 2001 (midgut leucine)", "PMC 2019 (PMC6634293)", "PMC 2022 (PMC9506520)"]
+  },
+  {
+    id: 2, cat: "leaf", impact: "critical",
+    icon: "📍", iconBg: "#E6F1FB",
+    title: "Leaf position on mulberry shoot",
+    subtitle: "Top vs. middle vs. basal leaves differ significantly",
+    overview: "Leaf position on the shoot branch is a major, often underappreciated determinant of silk yield. A 2024 peer-reviewed study in Vegetos (Springer) directly tested 4 positions (+2 to +10 leaves) and quantified effects on cocoon traits.",
+    keyFindings: [
+      "Silkworms fed top leaves (positions +2 to +4) exhibited the highest larval weight, cocoon weight, shell weight, and cocoon yield compared to all other positions.",
+      "Top leaves contain the highest moisture content and protein fractions, facilitating greater ingestion and assimilation.",
+      "Basal leaves (positions +8 to +10) have lower protein and higher dry matter/carbohydrate content, making them more suitable for late-instar (4th–5th) silkworms which prioritize energy for spinning.",
+      "Mixed-leaf feeding (T4) produced intermediate results, suitable for practical farm settings where separation by position is difficult.",
+      "A related finding from the same journal noted middle-position leaves produced superior silk quality metrics when carbohydrate content was the priority (Agriculture Institute review, 2025)."
+    ],
+    subparams: [
+      { label: "Top leaves (+2–+4)", val: "Highest protein & cocoon shell wt." },
+      { label: "Middle leaves (+5–+7)", val: "Best for late-age energy needs" },
+      { label: "Basal leaves (+8–+10)", val: "Lower protein, higher carb" },
+      { label: "Mixed leaves", val: "Intermediate; practical for farms" }
+    ],
+    refs: ["Vegetos/Springer 2024 (DOI: 10.1007/s42535-024-00965-6)", "Adeduntan SA 2013 (Advances in Life Sci.)", "Pandit & Bali 2015 (J Bio Innov)"]
+  },
+  {
+    id: 3, cat: "leaf", impact: "critical",
+    icon: "🌱", iconBg: "#E1F5EE",
+    title: "Mulberry variety & genotype",
+    subtitle: "Genetic composition of the host plant governs leaf quality",
+    overview: "The choice of mulberry variety (Morus alba cultivar or species) directly shapes the biochemical profile of leaves — and thus silk output. Varieties differ in leaf yield per unit area, moisture retention, protein concentration, phenolic content, and palatability to silkworms.",
+    keyFindings: [
+      "High-yielding, thick-leafed varieties (e.g., Yuesang No. 51 in China) are preferentially cultivated for commercial silk due to large, nutritious leaves.",
+      "Local Slovenian/Hungarian mulberry genotypes with higher total protein and lower total phenolic content produced competitive silk cocoon and raw silk quality vs. reference sericultural varieties (PMC 2022).",
+      "Phenolics in mulberry leaves can act as feeding deterrents and anti-nutritional factors; varieties with lower phenolic content promote greater leaf consumption and better silk yield.",
+      "Mineral composition (macro and micro-elements) differs significantly among varieties and correlates with silkworm productivity (Melkassa Agricultural Research Center study, Ethiopia)."
+    ],
+    subparams: [
+      { label: "Protein content", val: "Primary quality marker" },
+      { label: "Phenolic content", val: "Lower = better palatability" },
+      { label: "Leaf yield/ha", val: "Affects feed availability" },
+      { label: "Mineral profile", val: "Macro/micro-nutrients critical" }
+    ],
+    refs: ["PMC 2022 (PMC9506520)", "Cambridge Core (Int. J. Trop. Ins. Sci.)", "MARC Ethiopia study (macro-mineral study)", "Bose et al. 1991 (Indian J. Seric.)"]
+  },
+  {
+    id: 4, cat: "leaf", impact: "high",
+    icon: "📅", iconBg: "#FAEEDA",
+    title: "Leaf age & shoot maturity at harvest",
+    subtitle: "Optimal harvest window: 55–65 days for late-age silkworms",
+    overview: "The physiological age of the shoot at harvest determines leaf texture, moisture, protein-to-carbohydrate ratio, and palatability. Both under-mature and over-mature leaves compromise silkworm performance.",
+    keyFindings: [
+      "Leaves from shoots 55–65 days old represent the optimal harvest window for late-age (4th–5th instar) silkworms (FAO guidance, cited in Agriculture Institute 2025).",
+      "Over-mature leaves have reduced protein, higher cellulose content, and lower moisture, reducing ingestion rate and growth.",
+      "Tender leaves (too young) lack adequate protein and dry matter; young silkworms (1st–3rd instar) require these succulent leaves for easy ingestion.",
+      "Leaf nutritive quality peaks at a specific maturity level across 14 mulberry varieties — confirming a universal maturity-quality window (Sericologia 1997).",
+      "Summer conditions accelerate leaf maturation, necessitating more frequent harvesting to prevent leaves becoming over-mature before use."
+    ],
+    subparams: [
+      { label: "Optimal shoot age", val: "55–65 days (late age worms)" },
+      { label: "Young worm leaves", val: "Succulent, high moisture" },
+      { label: "Storage limit", val: "24–48 hrs after harvest max" },
+      { label: "Summer adjustment", val: "Increase harvest frequency" }
+    ],
+    refs: ["FAO sericulture guidelines", "Sericologia 1997, 37(1):71–81", "Horie 1978 (leaf quality parameters)", "Agriculture Institute 2025 review"]
+  },
+  {
+    id: 5, cat: "env", impact: "critical",
+    icon: "🌡️", iconBg: "#FAECE7",
+    title: "Rearing temperature",
+    subtitle: "Optimal: 24–26°C; extremes (>30°C or <18°C) severely reduce yield",
+    overview: "Temperature is arguably the most researched abiotic factor in sericulture. It affects larval metabolic rate, feeding duration, silk gland development, leaf-to-silk conversion efficiency, and overall survival.",
+    keyFindings: [
+      "Optimal rearing temperature: 24°C with 80–85% RH yields >88% larval survival rates in Bombyx mori (Uttarakhand study, Academia 2025).",
+      "An increase in temperature from 20–30°C resulted in a significant decrease in leaf-silk conversion rate; silk gland weight was negatively correlated with temperature (Academia 2015 bivoltine study).",
+      "High temperature (30°C, 58% RH) decreased larval weight by 13–19%, cocoon weight by 18–29%, shell weight by 24–28%, and fecundity by 42–48% for both Chinese and Japanese varieties (AGRIS/FAO, Rehman et al. 2000).",
+      "Good quality cocoons are spun at 22°C and 65±5% RH in the CB race; spinning rate is fastest at 38°C but quality is poor (Indian J. Exp. Biol. 2001).",
+      "Higher temperatures in summer reduce feeding duration in the 5th instar, adversely affecting larval weight and silk output (Journal of Insect Science seasonal study).",
+      "Maximum pupal weight of 2.99 g was recorded at 24°C and 80% RH."
+    ],
+    subparams: [
+      { label: "Optimal temp.", val: "24–26°C for rearing" },
+      { label: "Spinning optimum", val: "22°C, 65±5% RH" },
+      { label: "Critical high", val: ">30°C → silk conversion ↓" },
+      { label: "Critical low", val: "<18°C → mortality ↑" }
+    ],
+    refs: ["Rehman et al. 2000 (AGRIS/FAO)", "Indian J. Exp. Biol. 2001 (sea-63099)", "Academia 2015 bivoltine silk gland study", "Uttarakhand climatic variability study"]
+  },
+  {
+    id: 6, cat: "env", impact: "critical",
+    icon: "💧", iconBg: "#E6F1FB",
+    title: "Relative humidity (RH)",
+    subtitle: "Optimal: 75–85% RH; extremes cause disease and feeding failure",
+    overview: "Relative humidity affects silkworm physiology, leaf freshness in the rearing bed, disease incidence, and cocoon spinning behaviour. It interacts closely with temperature.",
+    keyFindings: [
+      "Humidity of 75–85% is crucial for optimal shell weight and overall silkworm development (Uttarakhand study).",
+      "High humidity (94%, 23°C) increased larval weight by 11%, cocoon weight by 13–20%, shell weight by 10–17%, and fecundity by 8–11%, and decreased larval mortality by 14–60% (Rehman et al. 2000).",
+      "Low humidity causes leaves to dry in the rearing bed, reducing moisture content and palatability, leading to irregular growth and inferior cocoons (Kumar et al. 2021).",
+      "Strong positive correlation found between Grasserie and Flacherie disease incidence with minimum temperature and maximum relative humidity (Springer, J. Basic & Applied Zoology 2025).",
+      "Time taken for cocoon completion was longest at 98±2% RH and least at 40±2% RH (Indian J. Exp. Biol. 2001)."
+    ],
+    subparams: [
+      { label: "Optimal range", val: "75–85% RH" },
+      { label: "High RH risk", val: "Disease (Grasserie, Muscardine)" },
+      { label: "Low RH risk", val: "Leaf drying, poor ingestion" },
+      { label: "Spinning optimum", val: "65±5% RH" }
+    ],
+    refs: ["Rehman et al. 2000 (AGRIS/FAO)", "Indian J. Exp. Biol. 2001", "Kumar et al. 2021 (Research Biotica 3(4))", "Springer 2025 (doi:10.1186/s41936-025-00483-0)"]
+  },
+  {
+    id: 7, cat: "env", impact: "high",
+    icon: "🌬️", iconBg: "#E1F5EE",
+    title: "Ventilation & air quality",
+    subtitle: "CO₂ build-up, ammonia, and air pollutants suppress yield",
+    overview: "Air quality within the rearing house — including CO₂ from larval respiration, ammonia from excreta, and external pollutants — materially affects silkworm growth and cocoon quality.",
+    keyFindings: [
+      "Air pollution study in Murshidabad district (West Bengal) showed that silkworms reared at a polluted urban site (with PAH concentrations up to 8.8 µg/m³) produced inferior silk fibre quality vs. rural control site.",
+      "Poor ventilation increases CO₂ and ammonia levels, causing respiratory distress, reduced feeding, and higher disease susceptibility.",
+      "Automated climate control systems that regulate ventilation in addition to temperature and humidity are emerging as standard for commercial operations (IAEME 2025 review).",
+      "Environmental conditions during cocoon spinning — including air composition — play an important role in cocoon morphology, stiffness, and strength (Offord et al. 2016, Journal of Materials Science)."
+    ],
+    subparams: [
+      { label: "CO₂ threshold", val: "Accumulates with poor ventilation" },
+      { label: "Ammonia", val: "From feces; suppresses feeding" },
+      { label: "Air pollutants", val: "PAH reduces silk fibre quality" },
+      { label: "Light exposure", val: "Affects larval feeding rhythm" }
+    ],
+    refs: ["Offord et al. 2016 (J. Materials Science, Springer)", "Murshidabad air pollution study (West Bengal)", "Kumar et al. 2021 (Research Biotica 3(4):195–202)"]
+  },
+  {
+    id: 8, cat: "env", impact: "high",
+    icon: "🗓️", iconBg: "#FAEEDA",
+    title: "Rearing season",
+    subtitle: "Spring is optimal; summer and monsoon depress yields",
+    overview: "Season integrates multiple environmental variables — temperature, humidity, leaf quality, and disease pressure — into a single practical factor that determines overall crop success.",
+    keyFindings: [
+      "Leaf intake by bivoltine silkworms was lowest in summer and highest in winter, reflecting how temperature and humidity influence both leaf quality and silkworm physiology (Journal of Insect Science seasonal variation study).",
+      "Spring rearing (moderate temperatures, good humidity) produces leaves with excellent moisture and balanced nutrition — the most favorable season for late-age rearing.",
+      "Monsoon season sees highest incidence of Grasserie (8.37% Shravani crop) and Flacherie (5.08% Bhaduri crop) in West Bengal; these diseases showed higher incidences during rainy and summer seasons (Springer 2025).",
+      "Muga silkworm studies found that high temperature, high rainfall, heavy disease/pest infestation during Aherua season and low temperature and dry climate during Aghenua season both reduced overall silkworm yield."
+    ],
+    subparams: [
+      { label: "Spring", val: "Best: balanced temp/humidity/leaf" },
+      { label: "Summer", val: "Reduced feeding, fast maturation" },
+      { label: "Monsoon", val: "Peak disease pressure (Grasserie)" },
+      { label: "Winter", val: "High leaf intake; slow development" }
+    ],
+    refs: ["J. Insect Science (seasonal leaf intake study)", "Springer 2025 (West Bengal disease data)", "ResearchGate (muga silkworm seasonal study)"]
+  },
+  {
+    id: 9, cat: "genetics", impact: "critical",
+    icon: "🧬", iconBg: "#EEEDFE",
+    title: "Silkworm breed / hybrid selection",
+    subtitle: "Bivoltine vs. multivoltine; hybrid heterosis boosts cocoon yield",
+    overview: "The genetic makeup of the silkworm is a foundational determinant of silk yield. Heterosis breeding (hybrid vigor) is the most effective strategy for rapidly increasing cocoon productivity. Domestic breeds differ dramatically from wild ancestors in cocoon traits.",
+    keyFindings: [
+      "Domestic silkworm strain Xiafang (D_XF) exhibited cocoon shell weight 4.68× and whole cocoon weight 2.76× those of wild silkworm W_AK (PMC 2020, genetic and genomic analysis).",
+      "Heterosis breeding is recognized as 'the most suitable methodology for augmenting cocoon yield in silkworm' (APSSRDI, Academia).",
+      "Cocoon weight and cocoon shell weight traits are influenced by additive and dominant genes; additive genetic variance is more influential than dominant variance (Tandfonline 2015 heritability review).",
+      "Bivoltine strains (BD2-S, SOF-BR, BO2) showed significant differences in nine quantitative traits (larval weight, cocoon yield, shell weight, shell ratio, filament length, denier) under thermotolerance screening (Oxford Academic, J. Insect Science 2011).",
+      "QTL analysis identified 8 loci significantly associated with cocoon shell weight, with BmRPL18 linked to silk protein synthesis (PMC 2017, Southwest University).",
+      "Female silkworms exhibit higher whole cocoon weight and pupal weight vs. males; cocoon shell ratio is negatively correlated with female sex (PMC 2020 genomic study)."
+    ],
+    subparams: [
+      { label: "Bivoltine breeds", val: "Higher silk quality, temperature-sensitive" },
+      { label: "Multivoltine breeds", val: "Hardy, higher quantity" },
+      { label: "CSR hybrids", val: "High quantity, commercial India" },
+      { label: "Thermotolerant", val: "BD2-S, SOF-BR, BO2 developed" }
+    ],
+    refs: ["PMC 2020 (PMC7105477)", "PMC 2017 (PMC5740181)", "Oxford Academic J. Ins. Sci. 2011 (10.1093/jisesa/11.1.116)", "Tandfonline 2015 heritability review"]
+  },
+  {
+    id: 10, cat: "genetics", impact: "high",
+    icon: "🌳", iconBg: "#E1F5EE",
+    title: "Sex of silkworm × sex of mulberry tree",
+    subtitle: "Interaction between silkworm and mulberry sex affects cocoon quality",
+    overview: "A controlled experiment by Sichuan Academy of Agricultural Sciences investigated four combinations of male/female silkworms fed male/female mulberry leaves, finding meaningful differences in cocoon and silk quality.",
+    keyFindings: [
+      "Both female silkworm sex and male mulberry leaf sex influenced cocoon characteristics and silk quality traits in distinct ways.",
+      "Female silkworm × female mulberry leaf (FS-FL) combination produced different digestion efficiency compared to male-male and cross combinations.",
+      "Male mulberry trees (variety Yuesang No. 51) have large, thick, high-quality leaves used as feed in Sichuan, China.",
+      "Results support that leaf quality parameters (and their interaction with host sex-linked biochemistry) have direct economic consequences in sericulture."
+    ],
+    subparams: [
+      { label: "FS-FL", val: "Female worm × female mulberry" },
+      { label: "MS-ML", val: "Male worm × male mulberry" },
+      { label: "Cross combinations", val: "Intermediate outcomes" },
+    ],
+    refs: ["PMC 2022 (PMC9246167) — Sichuan Academy of Agricultural Sciences"]
+  },
+  {
+    id: 11, cat: "nutrition", impact: "critical",
+    icon: "🌾", iconBg: "#FAEEDA",
+    title: "Nitrogen & fertilization of mulberry",
+    subtitle: "Foliar NPK application can increase leaf yield by 17% and cocoon yield by 52.8%",
+    overview: "Fertilization of mulberry plants — both basal and foliar application — is among the most actionable interventions for improving silk yield, as it directly raises the nutritional quality and quantity of leaves.",
+    keyFindings: [
+      "Basal + foliar fertilizer (FF) spray with NPK (305 kg N, 105 kg K, 66 kg P per ha/yr in 4 split doses) increased mulberry leaf productivity by 17% and cocoon productivity by 52.8% over control (BSTRI, Bangladesh, Academia).",
+      "Nano NPK (19:19:19) at 6 g/l foliar application recorded highest cocoon weight (2.25 g/cocoon) and cocoon shell weight (0.69 g/cocoon) — attributed to improved leaf protein and mineral content (AATCC Peer Journal 2022).",
+      "Phosphorus and potassium increase body weight of silkworm and significantly enhance cocoon production.",
+      "Leaf macronutrient composition of mulberry varieties showed that N, P, and K content in leaves directly correlates with silkworm productivity (MARC Ethiopia study).",
+      "Excess nitrogen does not always improve outcomes; some studies found that excessive nitrogenous compounds in the diet sometimes decreased economic indices (Etebari et al., ResearchGate)."
+    ],
+    subparams: [
+      { label: "Nitrogen (N)", val: "Primary silk protein precursor" },
+      { label: "Phosphorus (P)", val: "Increases body weight" },
+      { label: "Potassium (K)", val: "Enhances cocoon production" },
+      { label: "Foliar spray", val: "+52.8% cocoon yield (BSTRI)" }
+    ],
+    refs: ["BSTRI Bangladesh study (Academia)", "AATCC PeerJournals (nano NPK study 2022)", "Basit et al. 1999 (N, K, Ca, P, Mn doses)", "Etebari et al. (ResearchGate)"]
+  },
+  {
+    id: 12, cat: "nutrition", impact: "high",
+    icon: "🧪", iconBg: "#E1F5EE",
+    title: "Leaf moisture content",
+    subtitle: "Moisture determines palatability and feeding efficiency",
+    overview: "The moisture content of mulberry leaves at the time of feeding directly affects how readily silkworms ingest them. Both the drying of stored leaves and naturally low moisture during certain seasons reduce feeding efficiency.",
+    keyFindings: [
+      "Moisture content in leaves enhances the feeding efficiency of silkworm larvae, increasing growth rate (Sastry et al. 1988, cited in Applied Biological Research 2020).",
+      "Low humidity in the rearing room causes leaves to dry, making them tough and difficult to ingest, reducing larval growth (Kumar et al. 2021).",
+      "Young silkworms (1st–3rd instar) specifically require succulent, high-moisture leaves for easy ingestion; they cannot cut hard leaves.",
+      "Leaves should be stored at high humidity and used within 24–48 hours of harvest; leaves showing yellowing, browning, sliminess, or off-odours must be discarded (Agriculture Institute 2025).",
+      "During spring, moderate temperatures and good humidity produce leaves with excellent moisture — the most favourable season (J. Insect Science)."
+    ],
+    subparams: [
+      { label: "Optimal leaf moisture", val: "70–80% fresh weight" },
+      { label: "Storage window", val: "24–48 hrs max after harvest" },
+      { label: "Young worm need", val: "Succulent, high moisture only" },
+      { label: "Seasonal effect", val: "Spring > summer for moisture" }
+    ],
+    refs: ["Sastry et al. 1988", "Kumar et al. 2021 (Research Biotica)", "FAO sericulture guidelines", "Pandit & Bali 2015 (post-harvest moisture loss)"]
+  },
+  {
+    id: 13, cat: "nutrition", impact: "high",
+    icon: "⚗️", iconBg: "#EEEDFE",
+    title: "Micronutrients & mineral supplementation",
+    subtitle: "Zn, Fe, Mn, Ca, Mg in leaves affect silk filament quality",
+    overview: "Beyond NPK macronutrients, micronutrients (trace minerals) in mulberry leaves play a significant role in silkworm metabolism, silk gland function, and cocoon quality.",
+    keyFindings: [
+      "A combined positive influence of proteins, specific phenolics, and microelements on larval growth and silk thread parameters was predicted from local mulberry genotype feeding experiments (PMC 2022).",
+      "Mineral supplementation for improvement of leaf quality plays a vital role in silkworm development, cocoon characters, and yield (AATCC PeerJournals 2022).",
+      "Carbohydrates are very important for maintaining healthy growth of young silkworm larvae; fats/lipids are the main form of energy reserves critical for silkmoth development (PMC 2019 micronutrients study).",
+      "Different mulberry varieties react to climatic conditions — particularly temperature — which affects their mineral uptake and leaf quality."
+    ],
+    subparams: [
+      { label: "Calcium (Ca)", val: "0.1% supplementation beneficial" },
+      { label: "Zinc, Iron, Mn", val: "Silk thread strength parameters" },
+      { label: "Carbohydrates", val: "Critical for young larval growth" },
+      { label: "Lipids/fats", val: "Energy for spinning & pupal development" }
+    ],
+    refs: ["PMC 2019 (PMC6634293)", "PMC 2022 (PMC9506520)", "AATCC PeerJournals 2022 (nano fertilizer)"]
+  },
+  {
+    id: 14, cat: "nutrition", impact: "moderate",
+    icon: "🥛", iconBg: "#FAEEDA",
+    title: "Dietary supplements & feed additives",
+    subtitle: "Vitamins, probiotics, proteins can boost economic parameters",
+    overview: "A range of natural and synthetic dietary supplements added to mulberry leaf feeding have been studied for their capacity to improve silkworm growth and cocoon quality beyond what leaf nutrition alone can provide.",
+    keyFindings: [
+      "Supplements studied include: Amway protein, honey, bovine milk, sericin, probiotics (Bacillus subtilis, Lactobacillus casei, Saccharomyces cerevisiae, Spirulina), vitamins C and E, royal jelly, ascorbic acid, cowpea seed powder, AgNPs, and white hen's egg (ResearchGate compilation).",
+      "These additives improved economic parameters: pupal weight, shell ratio, cocoon weight, filament length, shell weight, denier, fibroin and sericin contents.",
+      "Casein milk, soybean flour, and curcumin were tested as protein supplement sources with positive effect on biological and economic traits.",
+      "However, results are not universally positive: some nitrogenous compound supplementation decreased certain economic indices (Etebari et al.)."
+    ],
+    subparams: [
+      { label: "Vitamins C & E", val: "Antioxidant boost to silk gland" },
+      { label: "Probiotics", val: "Gut health → better digestion" },
+      { label: "Spirulina", val: "Protein-rich additive" },
+      { label: "Royal jelly", val: "Growth enhancement reported" }
+    ],
+    refs: ["ResearchGate (Studies on influence of temp/humidity)", "Kamel & Megahed (AL-Azhar Univ.)", "Etebari et al. (ResearchGate nitrogenous compounds)"]
+  },
+  {
+    id: 15, cat: "disease", impact: "critical",
+    icon: "🦠", iconBg: "#FCEBEB",
+    title: "Grasserie (Nuclear Polyhedrosis Virus — BmNPV)",
+    subtitle: "Viral; 15–47% crop loss; strongly linked to high temperature/humidity",
+    overview: "Grasserie (nucleopolyhedrosis) is one of the four major silkworm diseases in the Indian subcontinent and is a major cause of economic loss globally, particularly during monsoon/summer seasons.",
+    keyFindings: [
+      "Grasserie and Flacherie are the most prevalent diseases, occurring throughout the year. Grasserie incidence peaked at 8.37% during Shravani crop and 7.18% during Bhaduri crop in West Bengal (Springer 2025).",
+      "Both diseases showed significantly higher incidences during rainy and summer seasons; strong positive correlation with minimum temperature and maximum relative humidity.",
+      "Average cocoon crop loss due to all silkworm diseases combined is 15–47% (Tayal et al. 2017, Pharma Innovation Journal 2022).",
+      "BmNPV is a major pathogen; health status and gut microbiome composition of larvae are analyzed as markers of disease vulnerability (PMC 2022 local mulberry genotype study).",
+      "Grasserie predominantly occurs during monsoon season in Maharashtra, India (ResearchGate 2025 microbial infections review)."
+    ],
+    subparams: [
+      { label: "Pathogen", val: "Baculovirus (BmNPV)" },
+      { label: "Peak season", val: "Monsoon/Shravani crop" },
+      { label: "Crop loss", val: "42.6% of disease-related losses" },
+      { label: "Trigger", val: "High RH + high temp" }
+    ],
+    refs: ["Springer 2025 (10.1186/s41936-025-00483-0)", "Pharma Innovation Journal 2022", "ResearchGate 2025 (microbial infections)", "Savanurmath (Bangalore, disease prevalence)"]
+  },
+  {
+    id: 16, cat: "disease", impact: "critical",
+    icon: "🧫", iconBg: "#FCEBEB",
+    title: "Flacherie (bacterial disease)",
+    subtitle: "Bacterial; most dangerous; 30–47% cocoon crop loss",
+    overview: "Bacterial Flacherie is considered 'more dangerous compared to others' among the four major silkworm diseases in the Indian subcontinent and accounts for the largest single category of crop losses.",
+    keyFindings: [
+      "30–40% cocoon crop loss due to Flacherie caused by bacteria restricted to the intestine and haemolymph (Dasgupta, ISROSET 2019 study).",
+      "Seventy percent loss in sericulture industry due to Flacherie was reported in earlier literature.",
+      "Flacherie is the most predominant disease at 47.9% of all silkworm diseases, followed by Grasserie at 42.6% (Savanurmath, Bangalore).",
+      "Categorized as bacterial gastroenteric disease, bacterial toxicosis, and bacterial septicemia depending on bacteria involved.",
+      "Flacherie incidence showed positive correlation with minimum temperature and maximum relative humidity in the West Bengal 6-year temporal study (Springer 2025)."
+    ],
+    subparams: [
+      { label: "Pathogen type", val: "Bacteria (gut/haemolymph)" },
+      { label: "Crop loss", val: "30–70% in affected batches" },
+      { label: "Disease share", val: "47.9% of all silkworm disease" },
+      { label: "Key disinfectant", val: "Bleaching powder, Sericillin" }
+    ],
+    refs: ["ISROSET 2019 (Dasgupta classification)", "Pharma Innovation Journal 2022", "Springer 2025 (temporal analysis West Bengal)"]
+  },
+  {
+    id: 17, cat: "disease", impact: "high",
+    icon: "🔬", iconBg: "#FAECE7",
+    title: "Pebrine (Nosema bombycis — microsporidiosis)",
+    subtitle: "Protozoan; transgenerational; 15–36% crop loss; can wipe out entire industry",
+    overview: "Pebrine is a protozoan disease caused by Nosema bombycis. Its most dangerous feature is transgenerational (transovarial) transmission — infected mothers pass the pathogen to eggs — making it a systemic long-term threat requiring systematic control.",
+    keyFindings: [
+      "Average cocoon crop loss 15–47% across all silkworm diseases; Nosema infection with occasional crop failure accounted for ~36% crop loss (Nataraju and Sathyaprasad).",
+      "Pebrine is considered 'the most dreadful disease having potential to wipe out the silk industry' (Pharma Innovation Journal 2022, J&K sericulture).",
+      "Epidemic of pebrine disease ruined European sericulture in the 19th century due to pebrine-sensitivity of varieties used (FAO germplasm resources).",
+      "Certain silkworm races (NB4D2 × SH6, NB4D2 × KA, J121 × J122, Hawlak) are particularly susceptible; larval mortality recorded at 5% in Jammu & Kashmir (ResearchGate 2025).",
+      "Infected silkworms gradually lose vigor, produce irregular cocoons, and often fail to complete development — detection is challenging as early-stage symptoms are subtle."
+    ],
+    subparams: [
+      { label: "Pathogen", val: "Nosema bombycis (protozoan)" },
+      { label: "Transmission", val: "Transovarial + contaminated feed" },
+      { label: "Crop loss", val: "Up to 36% per Nataraju et al." },
+      { label: "Control", val: "Microscopic egg inspection (mandatory)" }
+    ],
+    refs: ["PMC 2023 (PMC9985772 — TEM/SEM detection)", "Pharma Innovation Journal 2022 (J&K)", "FAO germplasm doc (ad108e03.htm)", "ResearchGate 2025 (microbial infections)"]
+  },
+  {
+    id: 18, cat: "disease", impact: "high",
+    icon: "🍄", iconBg: "#FAEEDA",
+    title: "Muscardine (fungal disease)",
+    subtitle: "Fungal (Beauveria/Isaria); reduces cocoon quantity and quality",
+    overview: "Muscardine is a fungal disease caused primarily by Beauveria bassiana (white muscardine) and Isaria farinosa (yellow muscardine). It reduces both the quantity and quality of cocoons and has highest incidence during cool, damp seasons.",
+    keyFindings: [
+      "Muscardine reduces both the quantity and quality of cocoons (ResearchGate 2025).",
+      "Highest incidence of Muscardine was observed during the Falguni (3.84%) crop, followed by Agrahayani (2.22%) crop in West Bengal — both cooler, damper seasons (Springer 2025).",
+      "Labex disinfectant is highly effective against Muscardine and Grasserie; developed by CSRTI Bangalore as economical bed disinfectant (Pharma Innovation Journal).",
+      "Sericillin (developed at CSRTI Berhampore) demonstrated superior performance against Muscardine vs. Labex in Eastern and North-Eastern region trials."
+    ],
+    subparams: [
+      { label: "White muscardine", val: "Beauveria bassiana" },
+      { label: "Yellow muscardine", val: "Isaria farinosa" },
+      { label: "Peak season", val: "Falguni crop (cool/damp)" },
+      { label: "Control", val: "Labex, Sericillin, Sanjeevini" }
+    ],
+    refs: ["Springer 2025 (temporal West Bengal)", "Pharma Innovation Journal 2022", "CSRTI Bangalore (Labex dev.)", "ResearchGate 2025 (microbial infections review)"]
+  },
+  {
+    id: 19, cat: "management", impact: "critical",
+    icon: "🧹", iconBg: "#E6F1FB",
+    title: "Rearing bed hygiene & disinfection",
+    subtitle: "Pathogen-free environment is non-negotiable; crop loss up to 47% without it",
+    overview: "Rearing bed management — frequency of bed cleaning, disinfectant choice, and timing of application — is one of the most practically impactful management variables under farmer control.",
+    keyFindings: [
+      "Crop loss occurs mainly due to improper disinfection and unhygienic rearing conditions at the farmer level (SKUAST-J study).",
+      "Bed disinfectants are applied on newly hatched larvae, after every moult before feeding, and on days 3 and 5 of the 5th instar after bed cleaning (ResearchTrend Bed Disinfectants).",
+      "Use of Sanjeevini bed disinfectant increased cocoon yield and delivered a cost-benefit ratio of 1:5 (Pharma Innovation Journal 2022).",
+      "Common disinfectants: Formalin (36% formaldehyde), bleaching powder (30% chlorine), slaked lime (also regulates bed humidity), Chlorine dioxide/Sanitech, Labex, Sericillin.",
+      "Lime+Ash combination was evaluated against multiple commercial disinfectants; commercial formulations showed consistent superiority in Eastern region trials (Pharma Innovation Journal 2022)."
+    ],
+    subparams: [
+      { label: "Formalin", val: "36% formaldehyde solution" },
+      { label: "Bleaching powder", val: "30% chlorine, broad spectrum" },
+      { label: "Slaked lime", val: "Cheap, anti-viral + moisture absorber" },
+      { label: "Labex / Sericillin", val: "CSRTI developed, high efficacy" }
+    ],
+    refs: ["Pharma Innovation Journal 2022 (bed disinfectants)", "SKUAST-J (disinfectants against pathogens)", "CSRTI Berhampore (Sericillin trial)", "Wikifarmer (hygiene review)"]
+  },
+  {
+    id: 20, cat: "management", impact: "high",
+    icon: "⚖️", iconBg: "#E1F5EE",
+    title: "Leaf feeding quantity & frequency",
+    subtitle: "5th instar requires 80–100 kg per 100 worms; 3–4 hour intervals optimal",
+    overview: "The absolute quantity of leaves provided per instar stage and the frequency of feeding directly determine larval weight gain, silk gland filling, and ultimate cocoon weight.",
+    keyFindings: [
+      "For every 100 silkworms entering the 4th instar, approximately 15–20 kg of fresh mulberry leaves are required; for the 5th instar, 80–100 kg per 100 worms are needed (Agriculture Institute 2025, citing FAO).",
+      "Late-age worms need feeding every 3–4 hours during active periods; insufficient feeding frequency leads to nutritional gaps at critical silk gland development stages.",
+      "Spreading leaves evenly across rearing trays ensures all silkworms have equal access and reduces competition stress, which affects uniformity of cocoon quality.",
+      "Leaf consumption is lowest in summer and highest in winter, requiring seasonal adjustment of feeding amounts to maintain target larval weights.",
+      "Approximately 70% of silk proteins are sourced from mulberry leaves — continuous, adequate supply is non-negotiable for cocoon quality (AATCC PeerJournals 2022)."
+    ],
+    subparams: [
+      { label: "4th instar need", val: "15–20 kg per 100 worms" },
+      { label: "5th instar need", val: "80–100 kg per 100 worms" },
+      { label: "Feeding interval", val: "Every 3–4 hrs (active period)" },
+      { label: "Leaf distribution", val: "Even spreading reduces competition" }
+    ],
+    refs: ["Agriculture Institute 2025 (citing FAO guidelines)", "AATCC PeerJournals 2022", "J. Insect Science (seasonal leaf consumption)"]
+  },
+  {
+    id: 21, cat: "management", impact: "high",
+    icon: "🏠", iconBg: "#FAECE7",
+    title: "Rearing house design & mounting technique",
+    subtitle: "Mountage type affects cocoon shape, reeling efficiency, and silk length",
+    overview: "Physical management parameters — quality of the rearing house (insulation, lighting, airflow design), type of mountage used for cocooning, and bed density — influence the final characteristics of cocoons.",
+    keyFindings: [
+      "Each cocoon can yield 300–1,000 metres of silk filament depending on the breed and rearing conditions; management decisions throughout rearing — including mounting technique — determine which end of this range is achieved (Agriculture Institute 2025).",
+      "Pestle-type and chandrika mountages affect cocoon shape symmetry; proper mounting prevents double cocoons, which have poor reelability.",
+      "Rearing density (number of worms per unit bed area) affects air circulation and competition for feed; overcrowding increases disease transmission probability.",
+      "Scientific rearing methods (following recommended package of practices) recorded significantly higher cocoon yield, filament length, non-breakable filament length, and single cocoon weight vs. traditional rearing (Uttarakhand study)."
+    ],
+    subparams: [
+      { label: "Cocoon filament range", val: "300–1,000 m depending on management" },
+      { label: "Mountage type", val: "Affects cocoon shape/reelability" },
+      { label: "Rearing density", val: "Overcrowding → disease/stress" },
+      { label: "Scientific vs. traditional", val: "Significantly higher yield (Uttarakhand)" }
+    ],
+    refs: ["Uttarakhand climatic variability study (Academia)", "Agriculture Institute 2025 (advanced techniques)", "FAO sericulture package of practices"]
+  },
+  {
+    id: 22, cat: "management", impact: "moderate",
+    icon: "🚫", iconBg: "#FCEBEB",
+    title: "Pesticide contamination of mulberry leaves",
+    subtitle: "Pesticide drift from adjacent farms is a leading cause of unexpected batch losses",
+    overview: "Mulberry silkworm is extraordinarily sensitive to pesticide residues on leaves. Even trace amounts of insecticides used on neighboring crops — deposited via drift or irrigation — can be lethal to larvae.",
+    keyFindings: [
+      "Pesticide drift from neighboring conventional crop farms is identified as 'one of the leading causes of unexpected batch losses in regions where sericulture coexists with conventional crop farming' (Agriculture Institute 2025).",
+      "Establishing a dedicated, isolated mulberry block and maintaining a strict no-pesticide zone around the rearing house significantly reduces this risk.",
+      "Any leaves showing yellowing, browning, sliminess, or off-odours — potential indicators of pesticide exposure or fungal contamination — must be discarded immediately.",
+      "Silkworms are so sensitive that contaminated mulberry cannot be detoxified by washing; the entire batch of leaves from a suspect source must be rejected."
+    ],
+    subparams: [
+      { label: "Drift risk", val: "Adjacent conventional farms" },
+      { label: "Sensitivity", val: "Trace amounts lethal to larvae" },
+      { label: "Prevention", val: "Isolated mulberry block + buffer zone" },
+      { label: "Detection", val: "Leaf inspection before feeding" }
+    ],
+    refs: ["Agriculture Institute 2025 (advanced rearing techniques review)", "FAO integrated pest management guidance for sericulture"]
+  }
+];
+
+const container = document.getElementById('cards-container');
+const filters = document.getElementById('filters');
+let activeFilter = 'all';
+
+function renderCards(filter) {
+  const filtered = filter === 'all' ? params : params.filter(p => p.cat === filter);
+  container.innerHTML = '';
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="no-results">No parameters in this category.</div>';
+    return;
+  }
+  filtered.forEach(p => {
+    const impactLabel = { critical: 'Critical impact', high: 'High impact', moderate: 'Moderate impact' }[p.impact];
+    const impactClass = `impact-${p.impact}`;
+    const card = document.createElement('div');
+    card.className = 'param-card';
+    card.innerHTML = `
+      <div class="card-header" onclick="toggleCard(${p.id})">
+        <div class="card-icon" style="background:${p.iconBg}">${p.icon}</div>
+        <div class="card-title">
+          <h3>${p.title}</h3>
+          <p>${p.subtitle}</p>
+        </div>
+        <span class="impact-badge ${impactClass}">${impactLabel}</span>
+        <span class="chevron" id="chev-${p.id}">▾</span>
+      </div>
+      <div class="card-body" id="body-${p.id}">
+        <div class="body-section">
+          <h4>Overview</h4>
+          <p>${p.overview}</p>
+        </div>
+        <div class="body-section">
+          <h4>Key research findings</h4>
+          <ul>${p.keyFindings.map(f => `<li>${f}</li>`).join('')}</ul>
+        </div>
+        <div class="body-section">
+          <h4>Sub-parameters & values</h4>
+          <div class="sub-params">
+            ${p.subparams.map(s => `<div class="sub-param"><div class="label">${s.label}</div><div class="val">${s.val}</div></div>`).join('')}
+          </div>
+        </div>
+        <div class="body-section">
+          <h4>Research references</h4>
+          ${p.refs.map(r => `<span class="ref-tag">${r}</span>`).join('')}
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function toggleCard(id) {
+  const body = document.getElementById(`body-${id}`);
+  const chev = document.getElementById(`chev-${id}`);
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  chev.classList.toggle('open', !isOpen);
+}
+
+filters.addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeFilter = btn.dataset.cat;
+  renderCards(activeFilter);
+});
+
+renderCards('all');
+</script>

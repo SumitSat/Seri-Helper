@@ -1,0 +1,19 @@
+# Data and Models
+data/
+datasets/
+*.keras
+*.h5
+*.tflite
+working/
+
+# Environment
+venv/
+.env
+__pycache__/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Notebooks checkpoints
+.ipynb_checkpoints/
